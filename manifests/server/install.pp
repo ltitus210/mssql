@@ -48,12 +48,14 @@ class mssql::server::install (
     $defaults = { 'path' => $configurationfile, 'key_val_separator' => '=' }
     create_ini_settings($settings, $defaults)
 
+    Exec {
+      path => 'C:\Program Files\Puppet Labs\Puppet\puppet\bin;C:\Program Files\Puppet Labs\Puppet\facter\bin;C:\Program Files\Puppet Labs\Puppet\hiera\bin;C:\Program Files\Puppet Labs\Puppet\mcollective\bin;C:\Program Files\Puppet Labs\Puppet\bin;C:\Program Files\Puppet Labs\Puppet\sys\ruby\bin;C:\Program Files\Puppet Labs\Puppet\sys\tools\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\ProgramData\GooGet;C:\Program Files\Google\Compute Engine\metadata_scripts;C:\Program Files (x86)\Google\Cloud SDK\google-cloud-sdk\bin;C:\Program Files\Google\Compute Engine\sysprep;C:\Program Files\Puppet Labs\Puppet\bin;C:\ProgramData\chocolatey\bin',
+    }
+
     exec { 'Install mssql::server' :
-      command   => @("EOT"),
-        & ${source}/setup.exe /CONFIGURATIONFILE='${regsubst($configurationfile, '(/|\\\\)', '\\', 'G')}' ; 
-        Remove-item -Path ${configurationfile}
-        |-EOT
-      provider  => 'powershell',
+      command   => "${source}/setup.exe /CONFIGURATIONFILE=${regsubst($configurationfile, '(/|\\\\)', '\\', 'G')}",
+      timeout   => '900',
+      unless    => "cmd.exe /c sc queryex type=service | find \"MSSQL\"",
       logoutput => $logoutput,
     }
 
