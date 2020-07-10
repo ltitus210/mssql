@@ -1,3 +1,4 @@
+# This repo has moved to: https://gitlab.greenpeace.org/gp/git/core-services/puppet/puppet-mssql
 
 # mssql
 
